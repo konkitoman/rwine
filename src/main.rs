@@ -1,8 +1,10 @@
 mod build;
+mod create_prefix;
 mod init;
 mod reactor;
 
 use build::build;
+use create_prefix::create_prefix;
 use init::init;
 
 use clap::Parser;
@@ -12,6 +14,7 @@ pub enum Commands {
     Init,
     Build,
     Run,
+    CreatePrefix,
 }
 
 #[derive(Parser)]
@@ -30,6 +33,7 @@ fn main() {
     match cli.command {
         Commands::Init => init(),
         Commands::Build => build(),
+        Commands::CreatePrefix => create_prefix(),
         Commands::Run => todo!(),
     }
 }
