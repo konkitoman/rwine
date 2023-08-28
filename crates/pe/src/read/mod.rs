@@ -1,5 +1,6 @@
 use std::io::{Read, Result};
 mod file_header;
+mod mz;
 mod optical_header;
 
 pub trait IORead: Sized {

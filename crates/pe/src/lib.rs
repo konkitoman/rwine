@@ -3,6 +3,7 @@
 mod characteristic;
 mod file_header;
 mod machine;
+mod mz;
 mod optical_header;
 mod read;
 mod subsystem;
@@ -12,5 +13,6 @@ pub use characteristic::Characteristic;
 pub use machine::Machine;
 pub use subsystem::Subsystem;
 
-pub use file_header::{FileHeader, FileHeaderError};
-pub use optical_header::{OpticalHeader, OpticalHeaderCommon, OpticalHeaderError};
+pub use file_header::*;
+pub use mz::*;
+pub use optical_header::*;

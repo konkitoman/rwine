@@ -1,14 +1,8 @@
 //! Source [osdev](https://wiki.osdev.org/MZ)
 
-mod error;
-mod read;
-mod write;
-
-pub use error::DosMZError;
-
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct DosMZ {
-    extra_bytes: u16,
+    pub(crate) extra_bytes: u16,
     pub pages: u16,
     pub realocation_items: u16,
     pub header_size: u16,
@@ -25,7 +19,20 @@ pub struct DosMZ {
     pub oem_info: u16,
     pub pe_header_start: u32,
 
-    stub: Vec<u8>,
+    pub(crate) stub: Vec<u8>,
+}
+
+#[derive(Debug)]
+pub enum DosMZError {
+    InvalidMagic,
+    CheckSumFailed,
+    IO(std::io::Error),
+}
+
+impl From<std::io::Error> for DosMZError {
+    fn from(value: std::io::Error) -> Self {
+        Self::IO(value)
+    }
 }
 
 impl DosMZ {

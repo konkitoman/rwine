@@ -426,20 +426,15 @@ dependencies = [
  "env_logger",
  "log",
  "polling",
- "rwine-coff",
- "rwine-dos-mz",
+ "rwine-pe",
 ]
 
 [[package]]
-name = "rwine-coff"
+name = "rwine-pe"
 version = "0.1.0"
 dependencies = [
  "bitflags 2.4.0",
 ]
-
-[[package]]
-name = "rwine-dos-mz"
-version = "0.1.0"
 
 [[package]]
 name = "server"

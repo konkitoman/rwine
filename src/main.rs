@@ -15,8 +15,7 @@ use create_prefix::create_prefix;
 use init::init;
 
 use clap::Parser;
-use rwine_coff::{FileHeader, OpticalHeader};
-use rwine_dos_mz::DosMZ;
+use rwine_pe::{DosMZ, FileHeader, OpticalHeader};
 
 #[derive(clap::Subcommand)]
 pub enum Commands {
