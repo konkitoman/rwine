@@ -66,15 +66,43 @@ pub struct OpticalHeaderWindowsPE32Plus {
 }
 
 #[derive(Debug)]
+pub struct DataDirectory {
+    pub address: u32,
+    pub size: u32,
+}
+
+#[derive(Debug)]
+pub struct DataDirectoryes {
+    pub export_table: DataDirectory,
+    pub import_table: DataDirectory,
+    pub resource_table: DataDirectory,
+    pub exeption_table: DataDirectory,
+    pub certificate_table: DataDirectory,
+    pub base_realocation_table: DataDirectory,
+    pub debug: DataDirectory,
+    pub architectures: DataDirectory,
+    pub global_ptr: DataDirectory,
+    pub tsl_table: DataDirectory,
+    pub load_config_table: DataDirectory,
+    pub bound_import: DataDirectory,
+    pub iat: DataDirectory,
+    pub delay_import_descriptor: DataDirectory,
+    pub clr_runtime: DataDirectory,
+    pub reserved: DataDirectory,
+}
+
+#[derive(Debug)]
 pub enum OpticalHeader {
     PE32 {
         common: OpticalHeaderCommon,
         base_of_data: u32,
         win: OpticalHeaderWindowsPE32,
+        data_directoryes: DataDirectoryes,
     },
     PE32Plus {
         common: OpticalHeaderCommon,
         win: OpticalHeaderWindowsPE32Plus,
+        data_directoryes: DataDirectoryes,
     },
 }
 

@@ -4,8 +4,8 @@ use std::io::Read;
 use crate::{
     characteristic::DLLCharacteristics,
     optical_header::{
-        OpticalHeader, OpticalHeaderCommon, OpticalHeaderError, OpticalHeaderWindowsPE32,
-        OpticalHeaderWindowsPE32Plus,
+        DataDirectory, DataDirectoryes, OpticalHeader, OpticalHeaderCommon, OpticalHeaderError,
+        OpticalHeaderWindowsPE32, OpticalHeaderWindowsPE32Plus,
     },
     subsystem, Subsystem,
 };
@@ -140,6 +140,54 @@ impl OpticalHeaderWindowsPE32Plus {
     }
 }
 
+impl DataDirectory {
+    pub fn read(data: &mut impl Read) -> Result<Self, std::io::Error> {
+        let address = u32::from_read(data)?;
+        let size = u32::from_read(data)?;
+        Ok(Self { address, size })
+    }
+}
+
+impl DataDirectoryes {
+    pub fn read(data: &mut impl Read) -> Result<Self, std::io::Error> {
+        let export_table = DataDirectory::read(data)?;
+        let import_table = DataDirectory::read(data)?;
+        let resource_table = DataDirectory::read(data)?;
+        let exeption_table = DataDirectory::read(data)?;
+        let certificate_table = DataDirectory::read(data)?;
+        let base_realocation_table = DataDirectory::read(data)?;
+        let debug = DataDirectory::read(data)?;
+        let architectures = DataDirectory::read(data)?;
+        let global_ptr = DataDirectory::read(data)?;
+        let tsl_table = DataDirectory::read(data)?;
+        let load_config_table = DataDirectory::read(data)?;
+        let bound_import = DataDirectory::read(data)?;
+        let iat = DataDirectory::read(data)?;
+        let delay_import_descriptor = DataDirectory::read(data)?;
+        let clr_runtime = DataDirectory::read(data)?;
+        let reserved = DataDirectory::read(data)?;
+
+        Ok(Self {
+            export_table,
+            import_table,
+            resource_table,
+            exeption_table,
+            certificate_table,
+            base_realocation_table,
+            debug,
+            architectures,
+            global_ptr,
+            tsl_table,
+            load_config_table,
+            bound_import,
+            iat,
+            delay_import_descriptor,
+            clr_runtime,
+            reserved,
+        })
+    }
+}
+
 impl OpticalHeader {
     pub fn read(data: &mut impl Read) -> Result<OpticalHeader, OpticalHeaderError> {
         let magic = u16::from_read(data)?;
@@ -152,6 +200,7 @@ impl OpticalHeader {
                     common,
                     base_of_data,
                     win: OpticalHeaderWindowsPE32::read(data)?,
+                    data_directoryes: DataDirectoryes::read(data)?,
                 })
             }
             0x20B => {
@@ -159,6 +208,7 @@ impl OpticalHeader {
                 Ok(Self::PE32Plus {
                     common,
                     win: OpticalHeaderWindowsPE32Plus::read(data)?,
+                    data_directoryes: DataDirectoryes::read(data)?,
                 })
             }
             _ => Err(OpticalHeaderError::InvalidMagic),
