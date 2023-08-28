@@ -420,14 +420,21 @@ dependencies = [
 name = "rwine"
 version = "0.1.0"
 dependencies = [
- "bitflags 2.4.0",
  "clap",
  "colored",
  "dirs",
  "env_logger",
  "log",
  "polling",
+ "rwine-coff",
  "rwine-dos-mz",
+]
+
+[[package]]
+name = "rwine-coff"
+version = "0.1.0"
+dependencies = [
+ "bitflags 2.4.0",
 ]
 
 [[package]]

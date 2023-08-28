@@ -1,4 +1,4 @@
-//! Source https://wiki.osdev.org/MZ
+//! Source [osdev](https://wiki.osdev.org/MZ)
 
 mod error;
 mod read;
