@@ -427,7 +427,12 @@ dependencies = [
  "env_logger",
  "log",
  "polling",
+ "rwine-dos-mz",
 ]
+
+[[package]]
+name = "rwine-dos-mz"
+version = "0.1.0"
 
 [[package]]
 name = "server"

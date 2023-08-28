@@ -16,3 +16,5 @@ dirs = "5.0.1"
 env_logger = "0.10.0"
 log = "0.4.20"
 polling = "2.8.0"
+
+rwine-dos-mz = {path = "./crates/dos-mz"}

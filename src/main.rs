@@ -15,6 +15,7 @@ use create_prefix::create_prefix;
 use init::init;
 
 use clap::Parser;
+use rwine_dos_mz::DosMZ;
 
 #[derive(clap::Subcommand)]
 pub enum Commands {
@@ -56,33 +57,32 @@ fn main() {
 
             let mut buffer = BufReader::new(file);
 
-            let dos_header = DosHeader::try_from(&mut buffer).unwrap();
+            let dos_header = DosMZ::read(&mut buffer).unwrap();
             println!("DosHeader: {dos_header:?}");
 
             let coff_header = COFFHeader::try_from(&mut buffer).unwrap();
             println!("COFFHeader: {coff_header:?}");
 
-            return;
             let mut magic = [0u8; 2];
-            file.read_exact(&mut magic).unwrap();
+            buffer.read_exact(&mut magic).unwrap();
 
             let mut major_linker_version = [0u8];
-            file.read_exact(&mut major_linker_version).unwrap();
+            buffer.read_exact(&mut major_linker_version).unwrap();
 
             let mut minor_linker_version = [0u8];
-            file.read_exact(&mut minor_linker_version).unwrap();
+            buffer.read_exact(&mut minor_linker_version).unwrap();
 
             let mut size_of_code = [0u8; 4];
-            file.read_exact(&mut size_of_code).unwrap();
+            buffer.read_exact(&mut size_of_code).unwrap();
 
             let mut size_of_initialized_data = [0u8; 4];
-            file.read_exact(&mut size_of_initialized_data).unwrap();
+            buffer.read_exact(&mut size_of_initialized_data).unwrap();
 
             let mut size_of_uninitialized_data = [0u8; 4];
-            file.read_exact(&mut size_of_uninitialized_data).unwrap();
+            buffer.read_exact(&mut size_of_uninitialized_data).unwrap();
 
             let mut adress_of_entry_point = [0u8; 4];
-            file.read_exact(&mut adress_of_entry_point).unwrap();
+            buffer.read_exact(&mut adress_of_entry_point).unwrap();
 
             let magic = u16::from_le_bytes(magic);
 
@@ -100,142 +100,6 @@ fn main() {
             println!("Size of Uninit Data: {size_of_uninitialized_data}");
             println!("Adress of entry point: {adress_of_entry_point}");
         }
-    }
-}
-
-#[derive(Debug)]
-pub struct DosHeader {
-    pub extra_bytes: u16,
-    pub pages: u16,
-    pub realocation_items: u16,
-    pub header_size: u16,
-    pub minimum_allocation: u16,
-    pub maximum_allocation: u16,
-    pub initial_ss: u16,
-    pub initial_sp: u16,
-    pub initial_ip: u16,
-    pub initial_cs: u16,
-    pub realocation_table: u16,
-    pub overlay: u16,
-
-    pub oem_identifier: u16,
-    pub oem_info: u16,
-    pub pe_header_start: u32,
-
-    pub stub: Vec<u8>,
-}
-
-#[derive(Debug)]
-pub enum DosHeaderError {
-    InvalidMagic,
-    CheckSumFailed,
-    IO(std::io::Error),
-}
-
-impl From<std::io::Error> for DosHeaderError {
-    fn from(value: std::io::Error) -> Self {
-        Self::IO(value)
-    }
-}
-
-impl TryFrom<&mut BufReader<File>> for DosHeader {
-    type Error = DosHeaderError;
-
-    fn try_from(data: &mut BufReader<File>) -> Result<Self, Self::Error> {
-        let mut buffer = [0u8; 2];
-
-        data.read_exact(&mut buffer)?;
-        let magic = u16::from_le_bytes(buffer);
-        if magic != 0x5A4D {
-            return Err(DosHeaderError::InvalidMagic);
-        }
-
-        data.read_exact(&mut buffer)?;
-        let extra_bytes = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let pages = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let realocation_items = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let header_size = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let minimum_allocation = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let maximum_allocation = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let initial_ss = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let initial_sp = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let checksum = u16::from_le_bytes(buffer);
-        if checksum != 0 {
-            return Err(DosHeaderError::CheckSumFailed);
-        }
-
-        data.read_exact(&mut buffer)?;
-        let initial_ip = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let initial_cs = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let realocation_table = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let overlay = u16::from_le_bytes(buffer);
-
-        {
-            let mut buffer = [0u8; 8];
-            data.read_exact(&mut buffer)?;
-            println!("Reserverd: {buffer:?}");
-        }
-        data.read_exact(&mut buffer)?;
-        let oem_identifier = u16::from_le_bytes(buffer);
-
-        data.read_exact(&mut buffer)?;
-        let oem_info = u16::from_le_bytes(buffer);
-
-        {
-            let mut buffer = [0u8; 20];
-            data.read_exact(&mut buffer)?;
-            println!("Reserved: {buffer:?}");
-        }
-
-        let mut buffer = [0u8; 4];
-        data.read_exact(&mut buffer)?;
-        let pe_header_start = u32::from_le_bytes(buffer);
-
-        let mut buffer = vec![0u8; extra_bytes as usize - 0x40];
-        data.read_exact(&mut buffer)?;
-
-        let stub = buffer;
-
-        Ok(Self {
-            extra_bytes,
-            pages,
-            realocation_items,
-            header_size,
-            minimum_allocation,
-            maximum_allocation,
-            initial_ss,
-            initial_sp,
-            initial_ip,
-            initial_cs,
-            realocation_table,
-            overlay,
-            oem_identifier,
-            oem_info,
-            pe_header_start,
-            stub,
-        })
     }
 }
 
