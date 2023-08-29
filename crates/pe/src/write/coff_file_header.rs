@@ -1,8 +1,8 @@
 use std::io::Write;
 
-use crate::FileHeader;
+use crate::CoffFileHeader;
 
-impl FileHeader {
+impl CoffFileHeader {
     pub fn write<W: Write>(self, buffer: &mut W) -> std::io::Result<usize> {
         let data = self.as_bytes();
         let len = data.len();

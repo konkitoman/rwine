@@ -1,7 +1,10 @@
 use std::io::{Read, Result};
-mod file_header;
+mod coff_file_header;
+mod coff_relocations;
 mod mz;
 mod optical_header;
+mod section_table;
+mod type_indicators;
 
 pub trait IORead: Sized {
     fn from_read(stream: &mut impl Read) -> Result<Self>;

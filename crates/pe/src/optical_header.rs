@@ -109,6 +109,7 @@ pub enum OpticalHeader {
 #[derive(Debug)]
 pub enum OpticalHeaderError {
     InvalidMagic,
+    IsCorupted,
     IO(std::io::Error),
 }
 

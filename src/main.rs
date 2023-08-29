@@ -15,7 +15,7 @@ use create_prefix::create_prefix;
 use init::init;
 
 use clap::Parser;
-use rwine_pe::{DosMZ, FileHeader, OpticalHeader};
+use rwine_pe::{CoffFileHeader, DosMZ, OpticalHeader, SectionTable};
 
 #[derive(clap::Subcommand)]
 pub enum Commands {
@@ -60,11 +60,21 @@ fn main() {
             let dos_header = DosMZ::read(&mut buffer).unwrap();
             println!("DosHeader: {dos_header:?}");
 
-            let coff_header = FileHeader::read(&mut buffer).unwrap();
+            let coff_header = CoffFileHeader::read(&mut buffer).unwrap();
             println!("COFFHeader: {coff_header:?}");
 
             let optical_header = OpticalHeader::read(&mut buffer).unwrap();
             println!("Optical header: {optical_header:?}");
+
+            let cursor = buffer.seek(std::io::SeekFrom::Current(0)).unwrap();
+            println!("Cursor: {cursor:0X}");
+
+            let mut sections = Vec::new();
+            for _ in 0..coff_header.size_of_optional_header as usize / SectionTable::SIZE {
+                let section_table = SectionTable::read(&mut buffer).unwrap();
+                println!("Section Table: {section_table:?}");
+                sections.push(section_table);
+            }
         }
     }
 }

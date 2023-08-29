@@ -1,18 +1,22 @@
 //! Source [microsoft](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#coff-file-header-object-and-image)
 
 mod characteristic;
-mod file_header;
+mod coff_file_header;
+mod coff_realocations;
 mod machine;
 mod mz;
 mod optical_header;
 mod read;
+mod section_table;
 mod subsystem;
+mod type_indicators;
 mod write;
 
-pub use characteristic::Characteristic;
+pub use characteristic::CoffCharacteristic;
 pub use machine::Machine;
 pub use subsystem::Subsystem;
 
-pub use file_header::*;
+pub use coff_file_header::*;
 pub use mz::*;
 pub use optical_header::*;
+pub use section_table::*;

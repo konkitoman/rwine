@@ -196,19 +196,35 @@ impl OpticalHeader {
             0x10B => {
                 let common = OpticalHeaderCommon::read(data)?;
                 let base_of_data = u32::from_read(data)?;
+                let win = OpticalHeaderWindowsPE32::read(data)?;
+                let data_directoryes = DataDirectoryes::read(data)?;
+                let not_corupted = data_directoryes.reserved.address == 0
+                    && data_directoryes.reserved.size == 0
+                    && data_directoryes.global_ptr.size == 0;
+                if !not_corupted {
+                    return Err(OpticalHeaderError::IsCorupted);
+                }
                 Ok(Self::PE32 {
                     common,
                     base_of_data,
-                    win: OpticalHeaderWindowsPE32::read(data)?,
-                    data_directoryes: DataDirectoryes::read(data)?,
+                    win,
+                    data_directoryes,
                 })
             }
             0x20B => {
                 let common = OpticalHeaderCommon::read(data)?;
+                let win = OpticalHeaderWindowsPE32Plus::read(data)?;
+                let data_directoryes = DataDirectoryes::read(data)?;
+                let not_corupted = data_directoryes.reserved.address == 0
+                    && data_directoryes.reserved.size == 0
+                    && data_directoryes.global_ptr.size == 0;
+                if !not_corupted {
+                    return Err(OpticalHeaderError::IsCorupted);
+                }
                 Ok(Self::PE32Plus {
                     common,
-                    win: OpticalHeaderWindowsPE32Plus::read(data)?,
-                    data_directoryes: DataDirectoryes::read(data)?,
+                    win,
+                    data_directoryes,
                 })
             }
             _ => Err(OpticalHeaderError::InvalidMagic),

@@ -1,9 +1,9 @@
 use super::IORead;
 use std::io::Read;
 
-use crate::{Characteristic, FileHeader, FileHeaderError};
+use crate::{CoffCharacteristic, CoffFileHeader, FileHeaderError};
 
-impl FileHeader {
+impl CoffFileHeader {
     pub fn read(data: &mut impl Read) -> Result<Self, FileHeaderError> {
         let magic = u32::from_read(data)?;
 
@@ -21,7 +21,7 @@ impl FileHeader {
         let number_of_symbols = u32::from_read(data)?;
 
         let size_of_optional_header = u16::from_read(data)?;
-        let characteristics = Characteristic::from_bits_truncate(u16::from_read(data)?);
+        let characteristics = CoffCharacteristic::from_bits_truncate(u16::from_read(data)?);
 
         Ok(Self {
             machine,

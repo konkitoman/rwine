@@ -1,2 +1,2 @@
-mod file_header;
+mod coff_file_header;
 mod mz;
