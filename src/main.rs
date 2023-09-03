@@ -12,6 +12,7 @@ use std::{
 
 use build::build;
 use create_prefix::create_prefix;
+use fork::fork;
 use init::init;
 
 use clap::Parser;
@@ -58,23 +59,51 @@ fn main() {
             let mut buffer = BufReader::new(file);
 
             let dos_header = DosMZ::read(&mut buffer).unwrap();
-            println!("DosHeader: {dos_header:?}");
+            println!("DosHeader: {dos_header:#?}");
 
             let coff_header = CoffFileHeader::read(&mut buffer).unwrap();
-            println!("COFFHeader: {coff_header:?}");
+            println!("COFFHeader: {coff_header:#?}");
 
             let optical_header = OpticalHeader::read(&mut buffer).unwrap();
-            println!("Optical header: {optical_header:?}");
+            println!("Optical header: {optical_header:#?}");
+
+            let mut sections = Vec::new();
+            for _ in 0..coff_header.number_of_sectors {
+                let section_table = SectionTable::read(&mut buffer).unwrap();
+                println!("Section Table: {section_table:#?}");
+                sections.push(section_table);
+            }
+
+            let mut sections_data = std::collections::HashMap::new();
+
+            for section in sections {
+                buffer.seek(std::io::SeekFrom::Start(section.pointer_to_raw_data as u64));
+                let mut buff = vec![0; section.size_of_raw_data as usize];
+                buffer.read_exact(&mut buff);
+                sections_data.insert(section.name, buff);
+            }
+
+            for (name, data) in sections_data {
+                println!("Name: {name}");
+                let data = String::from_utf8_lossy(&data).to_string();
+                println!("{data}");
+            }
 
             let cursor = buffer.seek(std::io::SeekFrom::Current(0)).unwrap();
             println!("Cursor: {cursor:0X}");
 
-            let mut sections = Vec::new();
-            for _ in 0..coff_header.size_of_optional_header as usize / SectionTable::SIZE {
-                let section_table = SectionTable::read(&mut buffer).unwrap();
-                println!("Section Table: {section_table:?}");
-                sections.push(section_table);
-            }
+            // match fork().unwrap() {
+            //     fork::Fork::Parent(child) => {
+            //         for var in std::env::args() {
+            //             prctl::set_name("rwine PARENT");
+            //         }
+            //     }
+            //     fork::Fork::Child => {
+            //         println!("C: {}", std::process::id());
+            //         prctl::set_name("rwine CHILD");
+            //         for var in std::env::args() {}
+            //     }
+            // }
         }
     }
 }

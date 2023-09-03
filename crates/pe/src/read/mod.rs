@@ -1,6 +1,7 @@
 use std::io::{Read, Result};
 mod coff_file_header;
 mod coff_relocations;
+mod line_numbers;
 mod mz;
 mod optical_header;
 mod section_table;

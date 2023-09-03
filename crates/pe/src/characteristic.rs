@@ -92,7 +92,7 @@ bitflags::bitflags! {
 
 bitflags::bitflags! {
     #[derive(Debug, Clone, Copy, Default, PartialEq)]
-            pub struct SectionCharacteristics: u32{
+        pub struct SectionCharacteristics: u32{
 
         ///The section should not be padded to the next boundary. This flag is obsolete and is replaced by IMAGE_SCN_ALIGN_1BYTES. This is valid only for object files.
         const IMAGE_SCN_TYPE_NO_PAD = 0x00000008;

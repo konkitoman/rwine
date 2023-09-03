@@ -3,6 +3,7 @@
 mod characteristic;
 mod coff_file_header;
 mod coff_realocations;
+mod line_numbers;
 mod machine;
 mod mz;
 mod optical_header;
@@ -17,6 +18,7 @@ pub use machine::Machine;
 pub use subsystem::Subsystem;
 
 pub use coff_file_header::*;
+pub use line_numbers::*;
 pub use mz::*;
 pub use optical_header::*;
 pub use section_table::*;
